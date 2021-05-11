@@ -2,17 +2,17 @@ package main
 
 import (
 	"errors"
-	"log"
 	"regexp"
 )
 
 type UsageItem struct {
+	Name              string
 	BlendedCost       string
 	BlendedCostUnit   string
 	UsageQuantity     string
 	UsageQuantityUnit string
-	SourceRegion      string
-	DestinationRegion string
+	SourceRegion      AwsRegion
+	DestinationRegion AwsRegion
 	TransferDirection string
 }
 
@@ -29,20 +29,19 @@ func GenerateData(start, end, granularity string) (items []UsageItem, err error)
 			name := group.Keys[0]
 			src, dst, direction, err := ParseUsageType(*name)
 			if err != nil {
-				log.Println("parse error: ", *name)
 				continue
 			}
 
 			item := UsageItem{
-				DestinationRegion: dst,
-				SourceRegion:      src,
+				Name:              *name,
+				DestinationRegion: regions.GetByBillName(dst),
+				SourceRegion:      regions.GetByBillName(src),
 				TransferDirection: direction,
+				BlendedCost:       *group.Metrics["BlendedCost"].Amount,
+				BlendedCostUnit:   *group.Metrics["BlendedCost"].Unit,
+				UsageQuantity:     *group.Metrics["UsageQuantity"].Amount,
+				UsageQuantityUnit: *group.Metrics["UsageQuantity"].Unit,
 			}
-			item.BlendedCost = *group.Metrics["BlendedCost"].Amount
-			item.BlendedCostUnit = *group.Metrics["BlendedCost"].Unit
-			item.UsageQuantity = *group.Metrics["UsageQuantity"].Amount
-			item.UsageQuantityUnit = *group.Metrics["UsageQuantity"].Unit
-
 			items = append(items, item)
 		}
 	}
@@ -51,6 +50,7 @@ func GenerateData(start, end, granularity string) (items []UsageItem, err error)
 }
 
 func ParseUsageType(text string) (src, dst, direction string, err error) {
+	//TODO: Cover these types EUN1-DataTransfer-In-Bytes, EUN1-DataTransfer-Out-Bytes,EUN1-DataTransfer-Regional-Bytes
 	rg, err := regexp.Compile(`([A-Z0-9].+)\-([A-Z0-9].+)\-AWS\-(.+)\-Bytes`)
 	if err != nil {
 		return src, dst, direction, err
@@ -58,7 +58,7 @@ func ParseUsageType(text string) (src, dst, direction string, err error) {
 
 	groups := rg.FindStringSubmatch(text)
 	if len(groups) != 4 {
-		return src, dst, direction, errors.New("cannot explode groups from usage type")
+		return src, dst, direction, errors.New("cannot explode groups from 'usage type'")
 	}
 
 	return groups[1], groups[2], groups[3], nil
