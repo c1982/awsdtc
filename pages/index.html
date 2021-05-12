@@ -1,115 +1,64 @@
-<!-- Styles -->
+
 <style>
-    #chartdiv {
-        width: 100%;
-        height: 98%;
-    }
+body {margin: 0; padding: 0; }
+#myDiv { position: absolute; top: 0; bottom: 0; width: 100%;
+}
 </style>
-
-<!-- Resources -->
-<script src="https://cdn.amcharts.com/lib/4/core.js"></script>
-<script src="https://cdn.amcharts.com/lib/4/maps.js"></script>
-<script src="https://cdn.amcharts.com/lib/4/geodata/worldLow.js"></script>
-<script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
-
-<!-- Chart code -->
-<script>
-    am4core.ready(function () {
-
-        // Themes begin
-        am4core.useTheme(am4themes_animated);
-        // Themes end
-
-        // Define marker path
-        var targetSVG = "M9,0C4.029,0,0,4.029,0,9s4.029,9,9,9s9-4.029,9-9S13.971,0,9,0z M9,15.93 c-3.83,0-6.93-3.1-6.93-6.93S5.17,2.07,9,2.07s6.93,3.1,6.93,6.93S12.83,15.93,9,15.93 M12.5,9c0,1.933-1.567,3.5-3.5,3.5S5.5,10.933,5.5,9S7.067,5.5,9,5.5 S12.5,7.067,12.5,9z";
-
-        // Create map instance
-        var chart = am4core.create("chartdiv", am4maps.MapChart);
-        var interfaceColors = new am4core.InterfaceColorSet();
-
-        // Set map definition
-        chart.geodata = am4geodata_worldLow;
-
-        // Set projection
-        chart.projection = new am4maps.projections.Mercator();
-
-        // Add zoom control
-        chart.zoomControl = new am4maps.ZoomControl();
-
-        // Set initial zoom
-        chart.homeZoomLevel = 2.5;
-        chart.homeGeoPoint = {
-            latitude: 51,
-            longitude: -23
-        };
-
-        // Create map polygon series
-        var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
-        polygonSeries.exclude = ["AQ"];
-        polygonSeries.useGeodata = true;
-        polygonSeries.mapPolygons.template.nonScalingStroke = true;
-
-        // Add images
-        var imageSeries = chart.series.push(new am4maps.MapImageSeries());
-        var imageTemplate = imageSeries.mapImages.template;
-        imageTemplate.tooltipText = "{title}";
-        imageTemplate.nonScaling = true;
-
-        var marker = imageTemplate.createChild(am4core.Sprite);
-        marker.path = targetSVG;
-        marker.horizontalCenter = "middle";
-        marker.verticalCenter = "middle";
-        marker.scale = 0.7;
-        marker.fill = interfaceColors.getFor("alternativeBackground");
-
-        imageTemplate.propertyFields.latitude = "latitude";
-        imageTemplate.propertyFields.longitude = "longitude";
-
-        imageSeries.data = [
-            {{ range $r:= .AwsRegions }}
-            {
-            "id": "{{$r.Code}}",
-            "svgPath": targetSVG,
-            "title": "{{$r.Region}} ({{$r.Location}})",
-            "latitude": {{ $r.Latitude }},
-        "longitude": {{ $r.Longitude }},
-        "scale": 1
-            },
+<head>
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+</head>
+<body>
+	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+    <script> 
+        var data = [{{ range $r:= .AwsRegions }}
+        {
+            type: "scattergeo", 
+            lon: [{{ $r.Longitude }}], 
+            lat: [{{ $r.Latitude }}],
+            marker: {size: 10, color: 'blue'},
+            text: "{{$r.Location}} ({{$r.Code}})",
+            mode: "markers+text",
+            textposition: "top center",
+        },
         {{ end }}
+        {{ range $c:= .Costs }} 
+        {
+            type: "scattergeo",
+            lon: [  {{ $c.SourceRegion.Longitude }} , {{ $c.DestinationRegion.Longitude }} ],
+            lat: [ {{ $c.SourceRegion.Latitude }} , {{ $c.DestinationRegion.Latitude }} ],
+            mode: 'lines',
+            text: "{{ $c.Name }}",
+            line: {
+                width: 1,
+                color: 'red'
+            },
+            opacity: {{ $c.UsageQuantity }}
+        },
+        {{- end }}
         ];
 
-
-    // Add lines
-    var lineSeries = chart.series.push(new am4maps.MapLineSeries());
-    lineSeries.dataFields.multiGeoLine = "multiGeoLine";
-
-    var lineTemplate = lineSeries.mapLines.template;
-    lineTemplate.nonScalingStroke = true;
-    lineTemplate.arrow.nonScaling = true;
-    lineTemplate.arrow.width = 4;
-    lineTemplate.arrow.height = 6;
-    lineTemplate.stroke = interfaceColors.getFor("alternativeBackground");
-    lineTemplate.fill = interfaceColors.getFor("alternativeBackground");
-    lineTemplate.line.strokeOpacity = 0.4;
-
-    lineSeries.data = [
-        {{ range $c:= .Costs }}
-            {
-                //Name: {{ $c.Name }} {{ $c }}
-                "multiGeoLine": [
-                    [
-                        { "latitude": {{ $c.SourceRegion.Latitude }}, "longitude": {{ $c.SourceRegion.Longitude }} },
-                        { "latitude": {{ $c.DestinationRegion.Latitude }}, "longitude": {{ $c.DestinationRegion.Longitude }} }
-                    ]
-                ]
+        //open-street-map, white-bg, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
+        var layout = {
+            font: {
+                family: 'Droid Serif, serif',
+                size: 8
             },
-        {{ end }}
-    ];
-
-    });
-</script>
-
-<!-- HTML -->
-<div id="chartdiv">
-
-</div>
+            title: 'AWS Data Transfers',
+            dragmode: 'zoom',
+            showlegend: false,
+            //mapbox: {style:"carto-positron",zoom: 2, center: { lat: 32, lon: 0 }},
+            geo: {
+                coastlinewidth: 0.1,
+                countrywidth: 0.2,
+                resolution: 80,
+                showland: true,
+                landcolor: '#EAEAAE',
+                countrycolor: '#d3d3d3',
+                subunitcolor: '#d3d3d3'
+            }   
+        };
+        
+        Plotly.newPlot("myDiv", data, layout, {showLink: false,scrollZoom: true});
+    </script>
+</body>

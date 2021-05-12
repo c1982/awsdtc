@@ -10,7 +10,7 @@ func RunPage() {
 	index := template.Must(template.ParseFiles("./pages/index.html"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		start := "2021-05-01"
-		end := "2021-05-10"
+		end := "2021-05-12"
 		granularity := "MONTHLY"
 
 		report, err := GenerateData(start, end, granularity)

@@ -16,6 +16,41 @@ type UsageItem struct {
 	TransferDirection string
 }
 
+func GenerateDataMock(start, end, granularity string) (items []UsageItem, err error) {
+	return []UsageItem{
+		{
+			Name:              "",
+			DestinationRegion: regions.GetByBillName("EUC1"),
+			SourceRegion:      regions.GetByBillName("EUN1"),
+			TransferDirection: "In",
+			BlendedCost:       "0.01",
+			BlendedCostUnit:   "USD",
+			UsageQuantity:     "5.004",
+			UsageQuantityUnit: "GB",
+		},
+		{
+			Name:              "",
+			DestinationRegion: regions.GetByBillName("EUC1"),
+			SourceRegion:      regions.GetByBillName("EU"),
+			TransferDirection: "Out",
+			BlendedCost:       "0.41",
+			BlendedCostUnit:   "USD",
+			UsageQuantity:     "6.004",
+			UsageQuantityUnit: "GB",
+		},
+		{
+			Name:              "",
+			DestinationRegion: regions.GetByBillName("EUC1"),
+			SourceRegion:      regions.GetByBillName("AFS1"),
+			TransferDirection: "Out",
+			BlendedCost:       "0.41",
+			BlendedCostUnit:   "USD",
+			UsageQuantity:     "6.004",
+			UsageQuantityUnit: "GB",
+		},
+	}, nil
+}
+
 func GenerateData(start, end, granularity string) (items []UsageItem, err error) {
 	output, err := GetCostAndUsage(start, end, granularity)
 	if err != nil {
