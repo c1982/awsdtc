@@ -192,7 +192,20 @@ func CreateRegionalUsage(group *costexplorer.Group) (regionID, transfertype stri
 }
 
 func ParseRegionalUsageType(text string) (regionID, transfertype string, err error) {
-	//TODO: for virginia DataTransfer-In-Bytes,DataTransfer-Out-Bytes,DataTransfer-Regional-Bytes
+	virginiaRegion := "USE1"
+
+	if text == "DataTransfer-In-Bytes" {
+		return virginiaRegion, "In", nil
+	}
+
+	if text == "DataTransfer-Out-Bytes" {
+		return virginiaRegion, "Out", nil
+	}
+
+	if text == "DataTransfer-Regional-Bytes" {
+		return virginiaRegion, "Regional", nil
+	}
+
 	rg, err := regexp.Compile(`(.+)\-DataTransfer\-(.+)-Bytes`)
 	if err != nil {
 		return regionID, transfertype, err
