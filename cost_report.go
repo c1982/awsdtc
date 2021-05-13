@@ -53,9 +53,9 @@ var (
 		{"South America", "São Paulo", "sa-east-1", "SAE1", "-23.5505", "-46.6333"},
 		{"US East", "N. Virginia", "us-east-1", "USE1", "37.4316", "-78.6569"},
 		{"US East", "Ohio", "us-east-2", "USE2", "40.4173", "-82.9071"},
-		{"US East", "Miami", "us-east-1-mia-1a", "MIA1", "25.761681", "-80.191788"},
-		{"US East", "Houston", "us-east-1-iah-1a", "IAH1", "29.7604", "-95.3698"},
-		{"US East", "Boston", "us-east-1-bos-1a", "BOS1", "42.35843", "-71.05977"},
+		{"US East", "Miami", "us-east-1-mia", "MIA1", "25.761681", "-80.191788"},
+		{"US East", "Houston", "us-east-1-iah", "IAH1", "29.7604", "-95.3698"},
+		{"US East", "Boston", "us-east-1-bos", "BOS1", "42.35843", "-71.05977"},
 		{"US West", "N. California", "us-west-1", "USW1", "36.7783", "-122.08"},
 		{"US West", "Oregon", "us-west-2", "USW2", "44.000000", "-120.500000"},
 	}

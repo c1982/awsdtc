@@ -3,7 +3,6 @@ package main
 import "testing"
 
 func TestParseUsageType(t *testing.T) {
-
 	testcases := []struct {
 		In  string
 		Src string
@@ -31,7 +30,30 @@ func TestParseUsageType(t *testing.T) {
 		if dir != v.Dir {
 			t.Errorf("invalid direction have: %s, got: %s", v.Dir, dir)
 		}
+	}
+}
 
+func TestParseRegionalType(t *testing.T) {
+	testcases := []struct {
+		In       string
+		RegionID string
+		Dir      string
+	}{
+		{"EUC1-DataTransfer-Out-Bytes", "EUC1", "Out"},
+		{"EUC1-DataTransfer-In-Bytes", "EUC1", "In"},
+		{"EUC1-DataTransfer-Regional-Bytes", "EUC1", "Regional"},
 	}
 
+	for _, v := range testcases {
+		regionid, direction, err := ParseRegionalUsageType(v.In)
+		if err != nil {
+			t.Error(err)
+		}
+		if regionid != v.RegionID {
+			t.Errorf("invalid src have: %s, got: %s", v.RegionID, regionid)
+		}
+		if direction != v.Dir {
+			t.Errorf("invalid dst have: %s, got: %s", v.Dir, direction)
+		}
+	}
 }

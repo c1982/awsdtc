@@ -11,14 +11,23 @@ body {margin: 0; padding: 0; }
 <body>
 	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
     <script> 
-        var data = [{{ range $r:= .AwsRegions }}
+        var data = [{{ range $v:= .Regions }}
         {
             type: "scattergeo", 
-            lon: [{{ $r.Longitude }}], 
-            lat: [{{ $r.Latitude }}],
-            marker: {size: 10, color: 'blue'},
-            text: "{{$r.Location}} ({{$r.Code}})",
-            mode: "markers+text",
+            lon: [{{ $v.Region.Longitude }}], 
+            lat: [{{ $v.Region.Latitude }}],
+            marker: {
+                size: {{ $v.UsagePercent }}, 
+                opacity: 0.8,
+                line: {
+                    color: 'black',
+                    width: 1
+                }
+            },
+            name: "{{ $v.Region.Location }} ({{$v.Region.Code}})",
+            hoverinfo: 'text',
+            text: "{{ $v.Region.Location }} ({{$v.Region.Code}})<br>Regional: {{ $v.DataTransferRegional.UsageQuantity }} {{ $v.DataTransferRegional.UsageQuantityUnit }} ({{ $v.DataTransferRegional.BlendedCost }} {{ $v.DataTransferRegional.BlendedCostUnit }})<br>In: {{ $v.DataTransferIn.UsageQuantity }} {{ $v.DataTransferIn.UsageQuantityUnit }} ({{ $v.DataTransferIn.BlendedCost }} {{ $v.DataTransferIn.BlendedCostUnit }})<br>Out: {{ $v.DataTransferOut.UsageQuantity }} {{ $v.DataTransferOut.UsageQuantityUnit }} ({{ $v.DataTransferOut.BlendedCost }} {{ $v.DataTransferOut.BlendedCostUnit }})",
+            mode: "markers",
             textposition: "top center",
         },
         {{ end }}
@@ -28,12 +37,13 @@ body {margin: 0; padding: 0; }
             lon: [  {{ $c.SourceRegion.Longitude }} , {{ $c.DestinationRegion.Longitude }} ],
             lat: [ {{ $c.SourceRegion.Latitude }} , {{ $c.DestinationRegion.Latitude }} ],
             mode: 'lines',
-            text: "{{ $c.Name }}",
+            hoverinfo: 'text',
+            text: "{{ $c.SourceRegion.Location }} -> {{ $c.DestinationRegion.Location }}<br>Name: {{ $c.Name }}<br>Usage: {{ $c.UsageQuantity }} {{ $c.UsageQuantityUnit }} ({{ $c.BlendedCost }} {{ $c.BlendedCostUnit }})",
             line: {
-                width: 1,
-                color: 'red'
+                width: 1
             },
-            opacity: {{ $c.UsageQuantity }}
+            opacity: {{ $c.Opacity }},
+            name: "{{ $c.Name }}"
         },
         {{- end }}
         ];
@@ -46,7 +56,7 @@ body {margin: 0; padding: 0; }
             },
             title: 'AWS Data Transfers',
             dragmode: 'zoom',
-            showlegend: false,
+            showlegend: true,
             //mapbox: {style:"carto-positron",zoom: 2, center: { lat: 32, lon: 0 }},
             geo: {
                 coastlinewidth: 0.1,
