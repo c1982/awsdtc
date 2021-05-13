@@ -1,16 +1,35 @@
 
 <style>
 body {margin: 0; padding: 0; }
-#myDiv { position: absolute; top: 0; bottom: 0; width: 100%;
-}
+#datatransfersmap {top: 0; bottom: 0; width: 100%; height: 100%;}
+#billdate { padding-left: 1%; padding-top: 1%;}
 </style>
 <head>
 	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
 </head>
 <body>
-	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div id="billdate">
+        Bill Date: <select id="bills"></select>
+    </div>
+	<div id='datatransfersmap'><!-- Plotly chart will be drawn inside this DIV --></div>
     <script> 
+        function fillDates(){
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            year = new Date().getFullYear();
+            var e = document.getElementById('bills');
+            for (var i = year; i >= 2010; i--) {
+                for(var z=0; z < monthNames.length; z++){
+                    var option = document.createElement('option');
+                    option.value = i+";"+z;
+                    option.innerHTML = monthNames[z] +" "+ i;
+                    e.appendChild(option);
+                }
+            }
+        };
+
+        fillDates()
         var data = [{{ range $v:= .Regions }}
         {
             type: "scattergeo", 
@@ -21,16 +40,18 @@ body {margin: 0; padding: 0; }
                 opacity: 0.8,
                 line: {
                     color: 'black',
-                    width: 1
+                    width: 0.5
                 }
             },
             name: "{{ $v.Region.Location }} ({{$v.Region.Code}})",
-            hoverinfo: 'text',
-            text: "{{ $v.Region.Location }} ({{$v.Region.Code}})<br>Regional: {{ $v.DataTransferRegional.UsageQuantity }} {{ $v.DataTransferRegional.UsageQuantityUnit }} ({{ $v.DataTransferRegional.BlendedCost }} {{ $v.DataTransferRegional.BlendedCostUnit }})<br>In: {{ $v.DataTransferIn.UsageQuantity }} {{ $v.DataTransferIn.UsageQuantityUnit }} ({{ $v.DataTransferIn.BlendedCost }} {{ $v.DataTransferIn.BlendedCostUnit }})<br>Out: {{ $v.DataTransferOut.UsageQuantity }} {{ $v.DataTransferOut.UsageQuantityUnit }} ({{ $v.DataTransferOut.BlendedCost }} {{ $v.DataTransferOut.BlendedCostUnit }})",
-            mode: "markers",
+            text: "{{ $v.Region.Location }}",
+            mode: "markers+text",
             textposition: "top center",
+            hovertext :"{{ $v.Region.Location }} ({{$v.Region.Code}})<br>Regional: {{ $v.DataTransferRegional.UsageQuantity }} {{ $v.DataTransferRegional.UsageQuantityUnit }} ({{ $v.DataTransferRegional.BlendedCost }} {{ $v.DataTransferRegional.BlendedCostUnit }})<br>In: {{ $v.DataTransferIn.UsageQuantity }} {{ $v.DataTransferIn.UsageQuantityUnit }} ({{ $v.DataTransferIn.BlendedCost }} {{ $v.DataTransferIn.BlendedCostUnit }})<br>Out: {{ $v.DataTransferOut.UsageQuantity }} {{ $v.DataTransferOut.UsageQuantityUnit }} ({{ $v.DataTransferOut.BlendedCost }} {{ $v.DataTransferOut.BlendedCostUnit }})",
+            hoverinfo :"text",
+            legendgroup:"{{ $v.Region.Location }}"
         },
-        {{ end }}
+        {{- end }}
         {{ range $c:= .Costs }} 
         {
             type: "scattergeo",
@@ -43,25 +64,21 @@ body {margin: 0; padding: 0; }
                 width: 1
             },
             opacity: {{ $c.Opacity }},
-            name: "{{ $c.Name }}"
+            name: "{{ $c.Name }}",
+            legendgroup:"{{ $c.SourceRegion.Location }}"
         },
         {{- end }}
         ];
 
         //open-street-map, white-bg, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
         var layout = {
-            font: {
-                family: 'Droid Serif, serif',
-                size: 8
-            },
             title: 'AWS Data Transfers',
-            dragmode: 'zoom',
             showlegend: true,
-            //mapbox: {style:"carto-positron",zoom: 2, center: { lat: 32, lon: 0 }},
+            legend:{},
             geo: {
                 coastlinewidth: 0.1,
                 countrywidth: 0.2,
-                resolution: 80,
+                resolution: 40,
                 showland: true,
                 landcolor: '#EAEAAE',
                 countrycolor: '#d3d3d3',
@@ -69,6 +86,6 @@ body {margin: 0; padding: 0; }
             }   
         };
         
-        Plotly.newPlot("myDiv", data, layout, {showLink: false,scrollZoom: true});
+        Plotly.newPlot("datatransfersmap", data, layout, {showLink: false});
     </script>
 </body>

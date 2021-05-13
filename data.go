@@ -32,39 +32,81 @@ type RegionalUsage struct {
 	UsagePercent         string
 }
 
-func GenerateDataMock(start, end, granularity string) (items []UsageItem, err error) {
+func GenerateDataMock(start, end, granularity string) (items []UsageItem, regionalusages []RegionalUsage, err error) {
 	return []UsageItem{
-		{
-			Name:              "",
-			DestinationRegion: regions.GetByBillName("EUC1"),
-			SourceRegion:      regions.GetByBillName("EUN1"),
-			TransferDirection: "In",
-			BlendedCost:       "0.01",
-			BlendedCostUnit:   "USD",
-			UsageQuantity:     "5.004",
-			UsageQuantityUnit: "GB",
-		},
-		{
-			Name:              "",
-			DestinationRegion: regions.GetByBillName("EUC1"),
-			SourceRegion:      regions.GetByBillName("EU"),
-			TransferDirection: "Out",
-			BlendedCost:       "0.41",
-			BlendedCostUnit:   "USD",
-			UsageQuantity:     "6.004",
-			UsageQuantityUnit: "GB",
-		},
-		{
-			Name:              "",
-			DestinationRegion: regions.GetByBillName("EUC1"),
-			SourceRegion:      regions.GetByBillName("AFS1"),
-			TransferDirection: "Out",
-			BlendedCost:       "0.41",
-			BlendedCostUnit:   "USD",
-			UsageQuantity:     "6.004",
-			UsageQuantityUnit: "GB",
-		},
-	}, nil
+			{
+				Name:              "EUC1-EUN1",
+				DestinationRegion: regions.GetByBillName("EUC1"),
+				SourceRegion:      regions.GetByBillName("EUN1"),
+				TransferDirection: "In",
+				BlendedCost:       "0.01",
+				BlendedCostUnit:   "USD",
+				UsageQuantity:     "5.004",
+				UsageQuantityUnit: "GB",
+				Opacity:           "1",
+			},
+			{
+				Name:              "EUC1-EU",
+				DestinationRegion: regions.GetByBillName("EUC1"),
+				SourceRegion:      regions.GetByBillName("EU"),
+				TransferDirection: "Out",
+				BlendedCost:       "0.41",
+				BlendedCostUnit:   "USD",
+				UsageQuantity:     "6.004",
+				UsageQuantityUnit: "GB",
+				Opacity:           "1",
+			},
+			{
+				Name:              "EUC1-AFS1",
+				DestinationRegion: regions.GetByBillName("EUC1"),
+				SourceRegion:      regions.GetByBillName("AFS1"),
+				TransferDirection: "Out",
+				BlendedCost:       "0.41",
+				BlendedCostUnit:   "USD",
+				UsageQuantity:     "6.004",
+				UsageQuantityUnit: "GB",
+				Opacity:           "1",
+			},
+		}, []RegionalUsage{
+
+			{"Frankfurt",
+				regions.GetByBillName("EUC1"),
+				UsageItem{
+					Name:              "EUC1-AFS1",
+					DestinationRegion: regions.GetByBillName("EUC1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "6.004",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				UsageItem{
+					Name:              "EUC1-AFS1",
+					DestinationRegion: regions.GetByBillName("EUC1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "6.004",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				UsageItem{
+					Name:              "EUC1-AFS1",
+					DestinationRegion: regions.GetByBillName("EUC1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "6.004",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				"0",
+			},
+		}, nil
 }
 
 func GenerateData(start, end, granularity string) (usages []UsageItem, regionalusages []RegionalUsage, err error) {
@@ -72,8 +114,6 @@ func GenerateData(start, end, granularity string) (usages []UsageItem, regionalu
 	if err != nil {
 		return usages, regionalusages, err
 	}
-
-	fmt.Println(output)
 
 	tmpregionalusages := CreateRegions()
 	usages = []UsageItem{}
@@ -87,7 +127,6 @@ func GenerateData(start, end, granularity string) (usages []UsageItem, regionalu
 				regionalusage := tmpregionalusages[regionID]
 				regionalusage.Name = *name
 				regionalusage.Region = regions.GetByBillName(regionID)
-				// regionalusage.UsagePercent = "0"
 
 				if transfertype == "In" {
 					regionalusage.DataTransferIn = usage
@@ -100,11 +139,6 @@ func GenerateData(start, end, granularity string) (usages []UsageItem, regionalu
 				if transfertype == "Regional" {
 					regionalusage.DataTransferRegional = usage
 				}
-
-				// if regionalusage.DataTransferRegional.UsageQuantity == "" {
-				// 	regionalusage.DataTransferRegional.UsageQuantity = "0"
-				// }
-
 				tmpregionalusages[regionID] = regionalusage
 			}
 

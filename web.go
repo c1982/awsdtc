@@ -19,9 +19,9 @@ func RunPage() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		start := "2021-05-01"
-		end := "2021-05-10"
+		end := "2021-05-13"
 
-		report, regionalreport, err := GenerateData(start, end, "MONTHLY")
+		report, regionalreport, err := GenerateDataMock(start, end, "MONTHLY")
 		if err != nil {
 			fmt.Fprintf(w, "%s", err)
 			return
