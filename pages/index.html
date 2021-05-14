@@ -1,4 +1,3 @@
-
 <style>
 body {margin: 0; padding: 0; }
 #datatransfersmap {top: 0; bottom: 0; width: 100%; height: 100%;}
@@ -10,82 +9,111 @@ body {margin: 0; padding: 0; }
 </head>
 <body>
     <div id="billdate">
-        Bill Date: <select id="bills"></select>
+        Bill Date: <select id="bills"></select> <label id="loading">loading...</label>
     </div>
-	<div id='datatransfersmap'><!-- Plotly chart will be drawn inside this DIV --></div>
+	<div id="datatransfersmap"><!-- Plotly chart will be drawn inside this DIV --></div>
     <script> 
+        var billdate = document.getElementById('bills');
         function fillDates(){
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             year = new Date().getFullYear();
-            var e = document.getElementById('bills');
-            for (var i = year; i >= 2010; i--) {
-                for(var z=0; z < monthNames.length; z++){
+            month = new Date().getMonth();
+            for (var yyyy = year-1; yyyy <= year; yyyy++) {
+                for(var mm=0; mm < monthNames.length; mm++) {
                     var option = document.createElement('option');
-                    option.value = i+";"+z;
-                    option.innerHTML = monthNames[z] +" "+ i;
-                    e.appendChild(option);
+                    option.value = yyyy+"|"+monthNames[mm];
+                    option.innerHTML = monthNames[mm] +" "+ yyyy;
+                    option.selected = (yyyy == year && month == mm);
+                    if (bills.options.length - 1) {
+                        bills.insertBefore(option, bills.options[0]);
+                    }else{
+                        bills.insertBefore(option, bills.options[bills.options.length - 1]);
+                    }
+                    if (yyyy == year && month == mm){
+                            break;
+                    }
                 }
             }
         };
 
-        fillDates()
-        var data = [{{ range $v:= .Regions }}
-        {
-            type: "scattergeo", 
-            lon: [{{ $v.Region.Longitude }}], 
-            lat: [{{ $v.Region.Latitude }}],
-            marker: {
-                size: {{ $v.UsagePercent }}, 
-                opacity: 0.8,
-                line: {
-                    color: 'black',
-                    width: 0.5
-                }
-            },
-            name: "{{ $v.Region.Location }} ({{$v.Region.Code}})",
-            text: "{{ $v.Region.Location }}",
-            mode: "markers+text",
-            textposition: "top center",
-            hovertext :"{{ $v.Region.Location }} ({{$v.Region.Code}})<br>Regional: {{ $v.DataTransferRegional.UsageQuantity }} {{ $v.DataTransferRegional.UsageQuantityUnit }} ({{ $v.DataTransferRegional.BlendedCost }} {{ $v.DataTransferRegional.BlendedCostUnit }})<br>In: {{ $v.DataTransferIn.UsageQuantity }} {{ $v.DataTransferIn.UsageQuantityUnit }} ({{ $v.DataTransferIn.BlendedCost }} {{ $v.DataTransferIn.BlendedCostUnit }})<br>Out: {{ $v.DataTransferOut.UsageQuantity }} {{ $v.DataTransferOut.UsageQuantityUnit }} ({{ $v.DataTransferOut.BlendedCost }} {{ $v.DataTransferOut.BlendedCostUnit }})",
-            hoverinfo :"text",
-            legendgroup:"{{ $v.Region.Location }}"
-        },
-        {{- end }}
-        {{ range $c:= .Costs }} 
-        {
-            type: "scattergeo",
-            lon: [  {{ $c.SourceRegion.Longitude }} , {{ $c.DestinationRegion.Longitude }} ],
-            lat: [ {{ $c.SourceRegion.Latitude }} , {{ $c.DestinationRegion.Latitude }} ],
-            mode: 'lines',
-            hoverinfo: 'text',
-            text: "{{ $c.SourceRegion.Location }} -> {{ $c.DestinationRegion.Location }}<br>Name: {{ $c.Name }}<br>Usage: {{ $c.UsageQuantity }} {{ $c.UsageQuantityUnit }} ({{ $c.BlendedCost }} {{ $c.BlendedCostUnit }})",
-            line: {
-                width: 1
-            },
-            opacity: {{ $c.Opacity }},
-            name: "{{ $c.Name }}",
-            legendgroup:"{{ $c.SourceRegion.Location }}"
-        },
-        {{- end }}
-        ];
+        function createMap() {
+            document.getElementById('loading').style.visibility = "visible";
+            d3.json('/datatransfers?date='+billdate.value, function(err, rows){
+                if (err) {
+                    alert(err.responseText);
+                    document.getElementById('loading').style.visibility = "hidden";
+                    return;
+                };
 
-        //open-street-map, white-bg, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
-        var layout = {
-            title: 'AWS Data Transfers',
-            showlegend: true,
-            legend:{},
-            geo: {
-                coastlinewidth: 0.1,
-                countrywidth: 0.2,
-                resolution: 40,
-                showland: true,
-                landcolor: '#EAEAAE',
-                countrycolor: '#d3d3d3',
-                subunitcolor: '#d3d3d3'
-            }   
+                data = [];
+                for ( var i = 0 ; i < rows.Regions.length; i++){
+                    var r = rows.Regions[i];
+                    var item = {
+                        type: "scattergeo", 
+                        lon: [r.Region.Longitude], 
+                        lat: [r.Region.Latitude],
+                        marker: {
+                            size: r.UsagePercent, 
+                            opacity: 0.8,
+                            line: {
+                                color: 'black',
+                                width: 0.5
+                            }
+                        },
+                        name: r.Region.Location +" ("+ r.Region.Code +")",
+                        text: r.Region.Location,
+                        mode: "markers+text",
+                        textposition: "top center",
+                        hovertext : r.Region.Location +" ("+ r.Region.Code +")<br>Regional: "+ r.DataTransferRegional.UsageQuantity +" "+ r.DataTransferRegional.UsageQuantityUnit +" "+ r.DataTransferRegional.BlendedCost +" "+ r.DataTransferRegional.BlendedCostUnit +")<br>In: "+ r.DataTransferIn.UsageQuantity +" "+ r.DataTransferIn.UsageQuantityUnit +"  ("+ r.DataTransferIn.BlendedCost +" "+ r.DataTransferIn.BlendedCostUnit +")<br>Out: "+ r.DataTransferOut.UsageQuantity +" "+ r.DataTransferOut.UsageQuantityUnit +" ("+ r.DataTransferOut.BlendedCost +" "+ r.DataTransferOut.BlendedCostUnit +")",
+                        hoverinfo :"text",
+                        legendgroup: r.Region.Location
+                    };
+                    
+                    data.push(item);
+                };
+                
+                for ( var i = 0 ; i < rows.Costs.length; i++){
+                    var c = rows.Costs[i]
+                    var item = {
+                            type: "scattergeo",
+                            lon: [  c.SourceRegion.Longitude ,c.DestinationRegion.Longitude ],
+                            lat: [ c.SourceRegion.Latitude , c.DestinationRegion.Latitude ],
+                            mode: 'lines',
+                            hoverinfo: 'text',
+                            text: c.SourceRegion.Location +" -> "+ c.DestinationRegion.Location +"<br>Name: "+  c.Name +"<br>Usage: "+ c.UsageQuantity +" "+ c.UsageQuantityUnit +" ("+ c.BlendedCost +" "+ c.BlendedCostUnit +")",
+                            line: {
+                                width: 1
+                            },
+                            opacity: c.Opacity,
+                            name: c.Name,
+                            legendgroup: c.SourceRegion.Location
+                        };
+                    data.push(item);
+                };
+
+                var layout = {
+                title: 'AWS Data Transfers',
+                showlegend: true,
+                legend:{},
+                geo: {
+                    coastlinewidth: 0.1,
+                    countrywidth: 0.2,
+                    resolution: 40,
+                    showland: true,
+                    landcolor: '#EAEAAE',
+                    countrycolor: '#d3d3d3',
+                    subunitcolor: '#d3d3d3'
+                    }   
+                };
+                
+                Plotly.newPlot("datatransfersmap", data, layout, {showLink: false}).then(function() {
+                    document.getElementById('loading').style.visibility = "hidden";
+                });
+            });
         };
-        
-        Plotly.newPlot("datatransfersmap", data, layout, {showLink: false});
+
+        fillDates();
+        createMap();
+        bills.addEventListener('change', createMap, false);
     </script>
 </body>
