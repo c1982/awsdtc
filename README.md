@@ -4,9 +4,9 @@ The AWS Data Transfer Cost Explorer tool analyzes the billed Data Transfer items
 
 ### Motivation;
 
-We have a continious cost optimization case on AWS. Especially the Data Transfer tab on the Bills screen is quite long and it takes a long time to understand which areas are used more.
+We have a continuous cost optimization case on AWS. Especially the Data Transfer tab on the Bills screen is quite long and it takes a long time to understand which areas are used more.
 
-Another need is to catch unusual Data Transfers in our infrastructure. For example, in our infrastructure, it is not possible to get traffic from Tokyo to Sao Paulo, but thanks to this vehicle, we can see and solve it. 
+Another need is to catch unusual Data Transfers in our infrastructure. For example, in our infrastructure, it is not possible to get traffic from Tokyo to Sao Paulo, but thanks to this tool, we can see and solve it. 
 
 General:
 ![](./ss-explorer.png)
