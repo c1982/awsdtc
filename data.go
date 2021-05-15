@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -101,6 +102,43 @@ func GenerateDataMock(start, end, granularity string) (items []UsageItem, region
 					BlendedCost:       "0.41",
 					BlendedCostUnit:   "USD",
 					UsageQuantity:     "6.004",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				"0",
+			},
+			{"N.California",
+				regions.GetByBillName("USW1"),
+				UsageItem{
+					Name:              "USW1-AFS1",
+					DestinationRegion: regions.GetByBillName("USW1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "10.0",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				UsageItem{
+					Name:              "USW1-AFS1",
+					DestinationRegion: regions.GetByBillName("USW1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "12.004",
+					UsageQuantityUnit: "GB",
+					Opacity:           "1",
+				},
+				UsageItem{
+					Name:              "USW1-AFS1",
+					DestinationRegion: regions.GetByBillName("USW1"),
+					SourceRegion:      regions.GetByBillName("AFS1"),
+					TransferDirection: "Out",
+					BlendedCost:       "0.41",
+					BlendedCostUnit:   "USD",
+					UsageQuantity:     "12.004",
 					UsageQuantityUnit: "GB",
 					Opacity:           "1",
 				},
@@ -290,6 +328,9 @@ func CalculatetUsagePercents(usages map[string]RegionalUsage) []RegionalUsage {
 		tmpmap = append(tmpmap, v)
 	}
 
+	sort.Slice(tmpmap, func(i, j int) bool {
+		return tmpmap[i].Name > tmpmap[j].Name
+	})
 	return tmpmap
 }
 

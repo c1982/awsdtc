@@ -61,6 +61,10 @@ export AWS_SECRET_ACCESS_KEY=WD/**********************************MA
 1. Download Binary for your OS
 2. Run awsdtc executable
 
-## Usage
+## License
 
-TODO: will complete
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Oğuzhan YILMAZ - [@c1982](https://twitter.com/c1982) - aspsrc@gmail.com

@@ -27,7 +27,7 @@ func RunPage() {
 			return
 		}
 
-		report, regionalreport, err := GenerateData(start, end, "MONTHLY")
+		report, regionalreport, err := GenerateDataMock(start, end, "MONTHLY")
 		if err != nil {
 			log.Printf("error: %s, start: %s, end: %s", err, start, end)
 			w.WriteHeader(http.StatusInternalServerError)
