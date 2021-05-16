@@ -14,6 +14,12 @@ General:
 Filtered:
 ![](./ss-frankfurt.png)
 
+Bubble Charts for Data Transfers:
+![](./ss-bubble-chart.png)
+
+Sunburst for Regions:
+![](./ss-sunburst.png)
+
 ## Installation
 
 * [awsdtc](https://github.com/c1982/awsdtc) 

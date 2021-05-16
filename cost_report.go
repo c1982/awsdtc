@@ -32,6 +32,20 @@ func (r Regions) GetByBillName(billname string) AwsRegion {
 	return AwsRegion{}
 }
 
+func (r Regions) GroupByRegion() []string {
+	tmpkeys := map[string]string{}
+	for i := 0; i < len(r); i++ {
+		tmpkeys[r[i].Region] = ""
+	}
+
+	tmpslice := []string{}
+	for k := range tmpkeys {
+		tmpslice = append(tmpslice, k)
+	}
+
+	return tmpslice
+}
+
 var (
 	regions = Regions{
 		{"Asia Pacific", "Hong Kong", "ap-east-1", "APE1", "22.302711", "114.177216"},

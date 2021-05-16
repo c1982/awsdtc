@@ -27,7 +27,7 @@ func RunPage() {
 			return
 		}
 
-		report, regionalreport, err := GenerateDataMock(start, end, "MONTHLY")
+		report, regionalreport, err := GenerateData(start, end, "MONTHLY")
 		if err != nil {
 			log.Printf("error: %s, start: %s, end: %s", err, start, end)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -38,9 +38,11 @@ func RunPage() {
 		data := struct {
 			Costs   []UsageItem
 			Regions []RegionalUsage
+			Groups  []string
 		}{
 			Costs:   report,
 			Regions: regionalreport,
+			Groups:  regions.GroupByRegion(),
 		}
 
 		rspdata, err := json.Marshal(data)

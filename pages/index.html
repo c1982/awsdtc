@@ -6,20 +6,16 @@
 <style>
     body {margin: 0; padding: 0; }
     #datatransfersmap {top: 0; bottom: 0; width: 100%; height: 100%;}
-    #datatransferstable{ width: 50%; float:left;}
-    #datatransferbubble{ width: 50%; float:right;}
     #billdate { padding-left: 1%; padding-top: 1%;}
 </style>
 <body>
     <div id="billdate">
         Bill Date: <select id="bills"></select> <label id="loading">loading...</label>
     </div>
-    <div id="datatransferssunburst"><!-- Plotly chart will be drawn inside this DIV --></div>
-    <div>
-	    <div id="datatransfersmap"><!-- Plotly chart will be drawn inside this DIV --></div>
-	    <div id="datatransferstable"><!-- Plotly chart will be drawn inside this DIV --></div>
-    </div>
+	<div id="datatransfersmap"><!-- Plotly chart will be drawn inside this DIV --></div>
+	<div id="datatransferstable"><!-- Plotly chart will be drawn inside this DIV --></div>
     <div id="datatransferbubble"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <div id="datatransferssunburst"><!-- Plotly chart will be drawn inside this DIV --></div>
     <script> 
         var billdate = document.getElementById('bills');
         function fillDates(){
@@ -146,19 +142,34 @@
                             text: bubbletext,
                         };
 
-                var sunburstcontinent = [""]
-                var sunburstregions = [];
+                var slabels = []
+                var sparents = [];
+                
+                for ( var i = 0 ; i < rows.Groups.length; i++){
+                    var r = rows.Groups[i];
+                    slabels.push(r);
+                    sparents.push("World");
+                }
+
                 for ( var i = 0 ; i < rows.Regions.length; i++){
                     var r = rows.Regions[i];
-                    sunburstregions.push(r.Region.Location);
-                    sunburstcontinent.push(r.Region.Region);
+                    sparents.push(r.Region.Region);
+                    slabels.push(r.Region.Location);
+                }
+
+                for ( var i = 0 ; i < rows.Costs.length; i++){
+                    var c = rows.Costs[i]
+                    slabels.push(c.Name);
+                    //sparents.push(c.SourceRegion.Location);
+                    sparents.push(c.SourceRegion.Location);
                 }
 
                 var sunburstdata = [
                     {
                         type: "sunburst",
-                        labels: ["World","Europe","USA","Frankfurt","Milan","California","Asia"],
-                        parents: ["","World","World","Europe","Europe", "USA","World"]
+                        labels: slabels,
+                        parents: sparents,
+                        maxdepth: 3,
                     }
                 ];
 
@@ -166,7 +177,6 @@
                     title: 'AWS Data Transfers',
                     showlegend: true,
                     legend:{},
-                    dragmode: "zoom",
                     geo: {
                         coastlinewidth: 0.1,
                         countrywidth: 0.2,
@@ -178,7 +188,7 @@
                         }
                 };
                
-                Plotly.newPlot('datatransferssunburst', sunburstdata, {title: 'Neler neler', showlegend: false});
+                Plotly.newPlot('datatransferssunburst', sunburstdata, { margin: {l: 0, r: 0, b: 10, t:0}, title: 'Neler neler', showlegend: false});
                 Plotly.newPlot('datatransferbubble', [bubbledata], {title: 'Data Transfer Directions', showlegend: false});
                 Plotly.newPlot("datatransferstable", datatable,{title: 'Total Regional Transfers (In/Out)'}, {showLink: false});
                 Plotly.newPlot("datatransfersmap", data, layout, {showLink: false}).then(function() {
