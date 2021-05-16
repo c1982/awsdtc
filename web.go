@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,8 +11,11 @@ import (
 	"time"
 )
 
+//go:embed pages/index.html
+var IndexPage string
+
 func RunPage() {
-	index := template.Must(template.ParseFiles("./pages/index.html"))
+	index, _ := template.ParseGlob(IndexPage)
 	http.HandleFunc("/datatransfers", func(w http.ResponseWriter, r *http.Request) {
 		billdate := r.URL.Query().Get("date")
 		if billdate == "" {
