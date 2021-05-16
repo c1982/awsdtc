@@ -20,9 +20,11 @@ Bubble Charts for Data Transfers:
 Sunburst for Regions:
 ![](./ss-sunburst.png)
 
-## Installation
+## Binaries
 
-* [awsdtc](https://github.com/c1982/awsdtc) 
+* [awsdtc_darwin_amd64](https://github.com/c1982/awsdtc/releases) 
+* [awsdtc_linux_amd64](https://github.com/c1982/awsdtc/releases) 
+* [awsdtc_windows_amd64](https://github.com/c1982/awsdtc/releases) 
 
 ## Configuration
 
@@ -64,8 +66,9 @@ export AWS_SECRET_ACCESS_KEY=WD/**********************************MA
 
 ## Running
 
-1. Download Binary for your OS
-2. Run awsdtc executable
+1. [Download Binary](https://github.com/c1982/awsdtc/releases) for your OS
+2. Run awsdtc executable in Command Line
+3. And call in your browser http://localhost:8000
 
 ## License
 
