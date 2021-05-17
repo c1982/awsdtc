@@ -68,7 +68,7 @@ export AWS_SECRET_ACCESS_KEY=WD/**********************************MA
 
 1. [Download Binary](https://github.com/c1982/awsdtc/releases) for your OS
 2. Run awsdtc executable in Command Line
-3. And call in your browser http://localhost:8000
+3. And call in your browser http://localhost:8080
 
 ## License
 
