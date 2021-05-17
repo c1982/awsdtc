@@ -13,7 +13,7 @@ import (
 //go:embed pages/index.html
 var IndexPage string
 
-func RunPage() {
+func RunPage(address string) {
 	http.HandleFunc("/datatransfers", func(w http.ResponseWriter, r *http.Request) {
 		billdate := r.URL.Query().Get("date")
 		if billdate == "" {
@@ -57,7 +57,10 @@ func RunPage() {
 		fmt.Fprintf(w, "%s", IndexPage)
 	})
 
-	http.ListenAndServe(":8000", nil)
+	err := http.ListenAndServe(address, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func GetDates(billdate string) (startdate, enddate string, err error) {
