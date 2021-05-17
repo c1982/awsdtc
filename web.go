@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"text/template"
 	"time"
 )
 
@@ -15,7 +14,6 @@ import (
 var IndexPage string
 
 func RunPage() {
-	index, _ := template.ParseGlob(IndexPage)
 	http.HandleFunc("/datatransfers", func(w http.ResponseWriter, r *http.Request) {
 		billdate := r.URL.Query().Get("date")
 		if billdate == "" {
@@ -56,7 +54,7 @@ func RunPage() {
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		index.Execute(w, nil)
+		fmt.Fprintf(w, "%s", IndexPage)
 	})
 
 	http.ListenAndServe(":8000", nil)

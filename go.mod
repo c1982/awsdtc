@@ -1,4 +1,4 @@
-module awsdtw
+module awsdtc
 
 go 1.16
 
