@@ -57,6 +57,7 @@ export AWS_SECRET_ACCESS_KEY=WD/**********************************MA
                 "aws-portal:ViewUsage",
                 "aws-portal:ViewBilling",
                 "cur:DescribeReportDefinitions",
+                "ce:GetCostAndUsage"
             ],
             "Resource": "*"
         }
